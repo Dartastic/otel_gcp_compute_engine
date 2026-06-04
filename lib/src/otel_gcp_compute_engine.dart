@@ -2,7 +2,6 @@
 // Copyright 2025-2026 Mindful Software LLC d/b/a Dartastic.io, All rights reserved.
 
 import 'package:dartastic_opentelemetry/dartastic_opentelemetry.dart';
-import 'package:dartastic_opentelemetry_api/dartastic_opentelemetry_api.dart';
 
 import 'otel_gcp_compute_engine_suppression.dart';
 
@@ -51,45 +50,56 @@ Future<T> tracedGcpComputeEngine<T>({
       tracer ?? OTel.tracerProvider().getTracer('otel_gcp_compute_engine');
   final span = t.startSpan('gce $operation', kind: SpanKind.client);
   try {
-    span.setStringAttribute('gcp.service', 'compute');
+    span.addAttributes(
+        OTel.attributes([OTel.attributeString('gcp.service', 'compute')]));
     final r = await invoke();
     final res = r.result;
     if (res != null) {
       if (res.project != null) {
-        span.setStringAttribute('gcp.project.id', res.project!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeString('gcp.project.id', res.project!)]));
       }
       if (res.zone != null) {
-        span.setStringAttribute('cloud.availability_zone', res.zone!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeString('cloud.availability_zone', res.zone!)]));
       }
       if (res.region != null) {
-        span.setStringAttribute('cloud.region', res.region!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeString('cloud.region', res.region!)]));
       }
       if (res.instanceName != null) {
-        span.setStringAttribute('host.name', res.instanceName!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeString('host.name', res.instanceName!)]));
       }
       if (res.instanceId != null) {
-        span.setStringAttribute('host.id', res.instanceId!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeString('host.id', res.instanceId!)]));
       }
       if (res.machineType != null) {
-        span.setStringAttribute('host.type', res.machineType!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeString('host.type', res.machineType!)]));
       }
       if (res.status != null) {
-        span.setStringAttribute('gcp.gce.status', res.status!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeString('gcp.gce.status', res.status!)]));
       }
       if (res.statusCode != null) {
-        span.setIntAttribute('http.response.status_code', res.statusCode!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeInt('http.response.status_code', res.statusCode!)]));
       }
       if (res.errorCode != null) {
-        span.setStringAttribute('gce.error.code', res.errorCode!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeString('gce.error.code', res.errorCode!)]));
       }
-      final fail =
-          res.errorCode != null ||
+      final fail = res.errorCode != null ||
           (res.statusCode != null && res.statusCode! >= 400);
       if (fail) {
-        span.setStringAttribute(
-          ErrorResource.errorType.key,
-          res.errorCode ?? 'gce.error',
-        );
+        span.addAttributes(OTel.attributes([
+          OTel.attributeString(
+            ErrorResource.errorType.key,
+            res.errorCode ?? 'gce.error',
+          )
+        ]));
         span.setStatus(SpanStatusCode.Error, res.errorMessage);
       }
     }

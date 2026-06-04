@@ -12,4 +12,5 @@ T runWithoutGcpComputeEngineInstrumentation<T>(T Function() body) =>
 
 Future<T> runWithoutGcpComputeEngineInstrumentationAsync<T>(
   Future<T> Function() body,
-) => runZoned(body, zoneValues: {_key: true});
+) =>
+    runZoned(body, zoneValues: {_key: true});
